@@ -1,4 +1,4 @@
-#include "corutina.h"
+#include "corutina.cc"
 
 // hacer codigo para que lea por linea de comando lo siguiente: -i datosuv.raw -o datosgrideados -d deltau -N tamanoimagen -c chunklectura -t numerotareas
 
@@ -33,6 +33,12 @@ int main (int argc, char* argv[]){
         }
     }
 
-
+    Lectura leer(nombre_archivo_entrada, chunk_lectura);
+    
+    // Creación de tareas
+    for (int i = 0; i < numero_tareas; i++){
+        Tarea tarea_lectura(leer.leer_n_lineas)
+    }
+    
     return 0;
 }
