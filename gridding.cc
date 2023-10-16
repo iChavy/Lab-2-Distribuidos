@@ -37,6 +37,26 @@ int main(int argc, char *argv[])
         }
     }
 
+    // BORRAR Y REEMPLAZAR POR EN GETOPT ????
+    int n = tamanyo_imagen;
+    // Crear una matriz dinámica de tipo double e inicializarla con 0.0
+    double **matriz_fr = new double *[n];
+    double **matriz_fi = new double *[n];
+    double **matriz_wr = new double *[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        matriz_fr[i] = new double[n];
+        matriz_fi[i] = new double[n];
+        matriz_wr[i] = new double[n];
+        for (int j = 0; j < n; j++)
+        {
+            matriz_fr[i][j] = 0.0;
+            matriz_fi[i][j] = 0.0;
+            matriz_wr[i][j] = 0.0;
+        }
+    }
+
     // crear todo con new<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     Lectura leer(nombre_archivo_entrada, chunk_lectura);
 
@@ -47,7 +67,7 @@ int main(int argc, char *argv[])
     {
         //fprintf(stderr, "Creando tarea %d\n", i);
         // Paso como parámetro el puntero a la lectura y el id de la tarea
-        tarea[i] = new Tarea(&leer, i);
+        tarea[i] = new Tarea(&leer, i, matriz_fr, matriz_fi, matriz_wr, delta_x, n);
     }
 
     // Eliminación de tareas
@@ -58,6 +78,54 @@ int main(int argc, char *argv[])
     }
 
     delete[] tarea;
+    
+    // Normalización matriz
+    for (int i = 0; i < tamanyo_imagen; i++)
+    {
+        for (int j = 0; j < tamanyo_imagen; j++)
+        {
+            if ( matriz_wr[i][j] == 0){
+                matriz_fr[i][j] = 0;
+                matriz_fi[i][j] = 0;
+            }
+            else{
+                matriz_fr[i][j] = matriz_fr[i][j] / matriz_wr[i][j];
+                matriz_fi[i][j] = matriz_fi[i][j] / matriz_wr[i][j];
+            }
+        }
+    }
+    
+    // Escribir en archivo las matrices
+    ofstream archivo_datos_grideados_r("datosgrideadosr.raw");
+    ofstream archivo_datos_grideados_i("datosgrideadosi.raw");
+
+    cout << "Escribiendo en archivo..." << endl;
+
+    for (int i = 0; i < tamanyo_imagen; i++)
+    {
+        for (int j = 0; j < tamanyo_imagen; j++)
+        {
+            archivo_datos_grideados_r << matriz_fr[i][j] << " ";
+            archivo_datos_grideados_i << matriz_fi[i][j] << " ";
+        }
+        archivo_datos_grideados_r << endl;
+        archivo_datos_grideados_i << endl;
+    }
+
+    archivo_datos_grideados_r.close();
+    archivo_datos_grideados_i.close();
+
+
+    // Liberar memoria de la matriz
+    for (int i = 0; i < tamanyo_imagen; i++)
+    {
+        delete[] matriz_fr[i];
+        delete[] matriz_fi[i];
+        delete[] matriz_wr[i];
+    }
+    delete[] matriz_fr;
+    delete[] matriz_fi;
+    delete[] matriz_wr;
 
     // Destructores
     //leer.~Lectura(); <---- preguntar
