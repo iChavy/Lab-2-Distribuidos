@@ -96,25 +96,23 @@ int main(int argc, char *argv[])
     }
     
     // Escribir en archivo las matrices
-    ofstream archivo_datos_grideados_r("datosgrideadosr.raw");
-    ofstream archivo_datos_grideados_i("datosgrideadosi.raw");
+
+    FILE*  archivo_datos_grideados_r = fopen ("datosgrideadosr.raw", "wb");
+    FILE*  archivo_datos_grideados_i = fopen ("datosgrideadosi.raw", "wb");
 
     cout << "Escribiendo en archivo..." << endl;
 
-    for (int i = 0; i < tamanyo_imagen; i++)
+    for (int i = 0; i < n ; i++)
     {
-        for (int j = 0; j < tamanyo_imagen; j++)
+        for (int j = 0; j < n; j++)
         {
-            archivo_datos_grideados_r << matriz_fr[i][j] << " ";
-            archivo_datos_grideados_i << matriz_fi[i][j] << " ";
+            fwrite(&matriz_fr[i][j], sizeof(float), 1, archivo_datos_grideados_r);
+            fwrite(&matriz_fi[i][j], sizeof(float), 1, archivo_datos_grideados_i);
         }
-        archivo_datos_grideados_r << endl;
-        archivo_datos_grideados_i << endl;
     }
 
-    archivo_datos_grideados_r.close();
-    archivo_datos_grideados_i.close();
-
+    fclose(archivo_datos_grideados_r);
+    fclose(archivo_datos_grideados_i);
 
     // Liberar memoria de la matriz
     for (int i = 0; i < tamanyo_imagen; i++)

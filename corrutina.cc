@@ -8,8 +8,7 @@
 
 using namespace std;
 
-// hacer while true para que entren de nuevo las tareas
-// hacer condiciones de archivo vacio, cuando chunk > lineas por leer, formato de archivo invalido, etc
+// hacer condiciones de archivo vacio, formato de archivo invalido, etc
 _Mutex _Coroutine Lectura {
 private:
     ifstream archivo;
@@ -20,20 +19,32 @@ private:
     
     void main(){
         string linea;
+        int lineas_Actuales = 0;
+
+        if (chunk_lectura <= 0){
+            cout << "Error: el chunk de lectura debe ser mayor a 0" << endl;
+            exit(1);
+        }
+
+        // Cuando una tarea termina de leer y hacer el cálculo, vuelve a quedar disponible para hacerlo de nuevo con otras lineas
         while (true){
             int count_lineas = 0;
+            
         
             // Lee n chunks del archivo
             while (getline(archivo, linea)) {
                 vector_lineas.push_back(linea);
                 count_lineas++;
+                lineas_Actuales++;
 
                 if (count_lineas == chunk_lectura) {
                     count_lineas = 0;
                     suspend();
                     vector_lineas.clear();
                 }
+                //cout << "lineas actuales: " << lineas_Actuales << endl;
             }
+            // Si quedaban menos lineas por leer que el chunk, se suspende la tarea
             suspend();
             vector_lineas.clear();
         }
@@ -44,7 +55,9 @@ private:
 
 public:
     // Constructor
-    Lectura(string nombre_archivo_entrada, int chunk_lectura) : archivo(nombre_archivo_entrada.c_str()), chunk_lectura(chunk_lectura), nombre_archivo_entrada(nombre_archivo_entrada){}    
+    Lectura(string nombre_archivo_entrada, int chunk_lectura) : archivo(nombre_archivo_entrada.c_str()), chunk_lectura(chunk_lectura), nombre_archivo_entrada(nombre_archivo_entrada){
+        //comprobar si archivo abierto
+    }    
 
     // Get vector de lineas
     vector<string> get_vector_lineas(){
