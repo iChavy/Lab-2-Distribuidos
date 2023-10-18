@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     string nombre_archivo_entrada, nombre_datos_grideados;
     double delta_x;
-    int tamanyo_imagen, chunk_lectura, numero_tareas, opcion;
+    int n, chunk_lectura, numero_tareas, opcion;
 
     while ((opcion = getopt(argc, argv, "i:o:d:N:c:t:")) != -1)
     {
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
             delta_x = stod(optarg);
             break;
         case 'N':
-            tamanyo_imagen = stoi(optarg);
+            n = stoi(optarg);
             break;
         case 'c':
             chunk_lectura = stoi(optarg);
@@ -37,23 +37,34 @@ int main(int argc, char *argv[])
         }
     }
 
-    // BORRAR Y REEMPLAZAR POR EN GETOPT ????
-    int n = tamanyo_imagen;
+
     // Crear una matriz dinámica de tipo double e inicializarla con 0.0
     double **matriz_fr = new double *[n];
     double **matriz_fi = new double *[n];
     double **matriz_wr = new double *[n];
+
+    double **matriz_fr_local = new double *[n];
+    double **matriz_fi_local = new double *[n];
+    double **matriz_wr_local = new double *[n];
 
     for (int i = 0; i < n; i++)
     {
         matriz_fr[i] = new double[n];
         matriz_fi[i] = new double[n];
         matriz_wr[i] = new double[n];
+
+        matriz_fr_local[i] = new double[n];
+        matriz_fi_local[i] = new double[n];
+        matriz_wr_local[i] = new double[n];
         for (int j = 0; j < n; j++)
         {
             matriz_fr[i][j] = 0.0;
             matriz_fi[i][j] = 0.0;
             matriz_wr[i][j] = 0.0;
+
+            matriz_fr_local[i][j] = 0.0;
+            matriz_fi_local[i][j] = 0.0;
+            matriz_wr_local[i][j] = 0.0;
         }
     }
 
@@ -80,13 +91,13 @@ int main(int argc, char *argv[])
     delete[] tarea;
     
     // Normalización matriz
-    for (int i = 0; i < tamanyo_imagen; i++)
+    for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < tamanyo_imagen; j++)
+        for (int j = 0; j < n; j++)
         {
             if ( matriz_wr[i][j] == 0){
-                matriz_fr[i][j] = 0;
-                matriz_fi[i][j] = 0;
+                matriz_fr[i][j] = 0.0;
+                matriz_fi[i][j] = 0.0;
             }
             else{
                 matriz_fr[i][j] = matriz_fr[i][j] / matriz_wr[i][j];
@@ -94,6 +105,7 @@ int main(int argc, char *argv[])
             }
         }
     }
+
     
     // Escribir en archivo las matrices
 
@@ -106,8 +118,8 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < n; j++)
         {
-            fwrite(&matriz_fr[i][j], sizeof(float), 1, archivo_datos_grideados_r);
-            fwrite(&matriz_fi[i][j], sizeof(float), 1, archivo_datos_grideados_i);
+            fwrite(&matriz_fr[i][j], sizeof(double), 1, archivo_datos_grideados_r);
+            fwrite(&matriz_fi[i][j], sizeof(double), 1, archivo_datos_grideados_i);
         }
     }
 
@@ -115,7 +127,7 @@ int main(int argc, char *argv[])
     fclose(archivo_datos_grideados_i);
 
     // Liberar memoria de la matriz
-    for (int i = 0; i < tamanyo_imagen; i++)
+    for (int i = 0; i < n; i++)
     {
         delete[] matriz_fr[i];
         delete[] matriz_fi[i];
@@ -124,6 +136,46 @@ int main(int argc, char *argv[])
     delete[] matriz_fr;
     delete[] matriz_fi;
     delete[] matriz_wr;
+
+    /*// creacion tareas
+
+    // eliminacion tareas
+
+    // suma de matrices de las tareas
+
+    // Normalización matriz local
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n/2; j++)
+        {
+            if ( matriz_wr_local[i][j] == 0){
+                matriz_fr_local[i][j] = 0.0;
+                matriz_fi_local[i][j] = 0.0;
+            }
+            else{
+                matriz_fr_local[i][j] = matriz_fr_local[i][j] / matriz_wr_local[i][j];
+                matriz_fi_local[i][j] = matriz_fi_local[i][j] / matriz_wr_local[i][j];
+            }
+        }
+    }
+
+    // escribir en archivo las matrices locales
+    FILE * archivo_datos_grideados_r_local = fopen ("datosgrideadosr_local.raw", "wb");
+    FILE * archivo_datos_grideados_i_local = fopen ("datosgrideadosi_local.raw", "wb");
+
+    cout << "Escribiendo en archivo local..." << endl;
+*/
+    // liberar memoria matriz local
+    for (int i = 0; i < n; i++)
+    {
+        delete[] matriz_fr_local[i];
+        delete[] matriz_fi_local[i];
+        delete[] matriz_wr_local[i];
+    }
+
+    delete[] matriz_fr_local;
+    delete[] matriz_fi_local;
+    delete[] matriz_wr_local;
 
     // Destructores
     //leer.~Lectura(); <---- preguntar
