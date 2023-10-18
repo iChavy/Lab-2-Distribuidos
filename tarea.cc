@@ -45,6 +45,9 @@ private:
 
         delta_x = (M_PI * delta_x) / (3600 * 180 );
         // Imagen I(x, y) es delta_x y delta_y, luego la distancia en los puntos de su transformada V(u, v) es:
+
+                // dejar en constructor:
+
         delta_u = 1 / (n * delta_x);
         delta_v = 1 / (n * delta_x);
 

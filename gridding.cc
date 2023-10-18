@@ -1,5 +1,6 @@
 #include "corrutina.cc"
 #include "tarea.cc"
+#include "tarea_local.cc"
 
 // hacer codigo para que lea por linea de comando lo siguiente: -i datosuv.raw -o datosgrideados -d delta_x -N tamanoimagen -c chunklectura -t numerotareas
 
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    /*
     // crear todo con new<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     Lectura leer(nombre_archivo_entrada, chunk_lectura);
 
@@ -124,7 +126,7 @@ int main(int argc, char *argv[])
     }
 
     fclose(archivo_datos_grideados_r);
-    fclose(archivo_datos_grideados_i);
+    fclose(archivo_datos_grideados_i);*/
 
     // Liberar memoria de la matriz
     for (int i = 0; i < n; i++)
@@ -137,16 +139,47 @@ int main(int argc, char *argv[])
     delete[] matriz_fi;
     delete[] matriz_wr;
 
-    /*// creacion tareas
+    ///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
+    Lectura leer_local(nombre_archivo_entrada, chunk_lectura);
+
+    Tarea_local **tarea_local = new Tarea_local *[numero_tareas];
+
+    // Creación de tareas
+    for (int i = 0; i < numero_tareas; i++)
+    {
+        //cout << "Creando tarea " << i << endl;
+        // Paso como parámetro el puntero a la lectura y el id de la tarea
+        tarea_local[i] = new Tarea_local(&leer_local, i, delta_x, n);
+
+    }
+
+    // Sumar matrices locales de cada tarea
+    for (int i = 0; i < numero_tareas; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            for (int k = 0; k < n; k++)
+            {
+                matriz_fr_local[j][k] += tarea_local[i]->get_matriz_fr_local()[j][k];
+                matriz_fi_local[j][k] += tarea_local[i]->get_matriz_fi_local()[j][k];
+                matriz_wr_local[j][k] += tarea_local[i]->get_matriz_wr_local()[j][k];
+            }
+        }
+    }
 
     // eliminacion tareas
+    for (int i = 0; i < numero_tareas; i++)
+    {
+        //fprintf(stderr, "Eliminando tarea %d\n", i);
+        delete tarea_local[i];
+    }
 
-    // suma de matrices de las tareas
+    delete[] tarea_local;
 
     // Normalización matriz local
     for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < n/2; j++)
+        for (int j = 0; j < n; j++)
         {
             if ( matriz_wr_local[i][j] == 0){
                 matriz_fr_local[i][j] = 0.0;
@@ -164,7 +197,19 @@ int main(int argc, char *argv[])
     FILE * archivo_datos_grideados_i_local = fopen ("datosgrideadosi_local.raw", "wb");
 
     cout << "Escribiendo en archivo local..." << endl;
-*/
+
+    for (int i = 0; i < n ; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            fwrite(&matriz_fr_local[i][j], sizeof(double), 1, archivo_datos_grideados_r_local);
+            fwrite(&matriz_fi_local[i][j], sizeof(double), 1, archivo_datos_grideados_i_local);
+        }
+    }
+
+    fclose(archivo_datos_grideados_r_local);
+    fclose(archivo_datos_grideados_i_local);
+
     // liberar memoria matriz local
     for (int i = 0; i < n; i++)
     {
@@ -176,6 +221,8 @@ int main(int argc, char *argv[])
     delete[] matriz_fr_local;
     delete[] matriz_fi_local;
     delete[] matriz_wr_local;
+
+    
 
     // Destructores
     //leer.~Lectura(); <---- preguntar
