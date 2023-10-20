@@ -15,7 +15,7 @@ private:
     ifstream archivo;
     int chunk_lectura;
     string nombre_archivo_entrada;
-    // vector de strings que contiene los datos de la linea
+    // Vector que almacena las lineas leidas
     vector<string> vector_lineas;
 
     void main()
@@ -47,7 +47,6 @@ private:
                     suspend();
                     vector_lineas.clear();
                 }
-                // cout << "lineas actuales: " << lineas_Actuales << endl;
             }
             // Si quedaban menos lineas por leer que el chunk, se suspende la tarea
             suspend();
@@ -81,6 +80,3 @@ public:
         resume(); // activa el main de la corutina
     }
 };
-
-// dentro de task pasar corrtuina que instancio en el main
-// corrutina.leer_n_lineas();

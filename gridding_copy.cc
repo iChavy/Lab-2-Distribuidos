@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     string nombre_archivo_entrada, nombre_datos_grideados;
-    double delta_x;
+    double delta_x, delta_u, delta_v;
     int n, chunk_lectura, numero_tareas, opcion;
 
     while ((opcion = getopt(argc, argv, "i:o:d:N:c:t:")) != -1)
@@ -36,6 +36,30 @@ int main(int argc, char *argv[])
         }
     }
 
+    double **matriz_fr_local = new double *[n];
+    double **matriz_fi_local = new double *[n];
+    double **matriz_wr_local = new double *[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        matriz_fr_local[i] = new double[n];
+        matriz_fi_local[i] = new double[n];
+        matriz_wr_local[i] = new double[n];
+        for (int j = 0; j < n; j++)
+        {
+            matriz_fr_local[i][j] = 0.0;
+            matriz_fi_local[i][j] = 0.0;
+            matriz_wr_local[i][j] = 0.0;
+        }
+    }
+
+    delta_x = (M_PI * delta_x) / (3600 * 180);
+    
+    // Imagen I(x, y) es delta_x y delta_y, luego la distancia en los puntos de su transformada V(u, v) es:
+    delta_u = 1 / (n * delta_x);
+    delta_v = 1 / (n * delta_x);
+    
+
     Lectura leer(nombre_archivo_entrada, chunk_lectura);
     Matriz matrices(n);
     Tarea **tarea = new Tarea *[numero_tareas];
@@ -43,7 +67,7 @@ int main(int argc, char *argv[])
     // Creación de tareas
     for (int i = 0; i < numero_tareas; i++)
     {
-        tarea[i] = new Tarea(&leer, i, &matrices, delta_x, n);
+        tarea[i] = new Tarea(&leer, i, &matrices, delta_x, delta_u, delta_v, n);
     }
 
     // Eliminación de tareas
@@ -60,7 +84,7 @@ int main(int argc, char *argv[])
     // Escribir en archivo las matrices
     matrices.escribirArchivo("datosgrideadosr.raw", "datosgrideadosi.raw");
 
-    /*///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
     Lectura leer_local(nombre_archivo_entrada, chunk_lectura);
 
     Tarea_local **tarea_local = new Tarea_local *[numero_tareas];
@@ -68,9 +92,7 @@ int main(int argc, char *argv[])
     // Creación de tareas
     for (int i = 0; i < numero_tareas; i++)
     {
-        // cout << "Creando tarea " << i << endl;
-        //  Paso como parámetro el puntero a la lectura y el id de la tarea
-        tarea_local[i] = new Tarea_local(&leer_local, i, delta_x, n);
+        tarea_local[i] = new Tarea_local(&leer_local, i, delta_x, delta_u, delta_v, n);
     }
 
     // Sumar matrices locales de cada tarea
@@ -131,12 +153,18 @@ int main(int argc, char *argv[])
 
     fclose(archivo_datos_grideados_r_local);
     fclose(archivo_datos_grideados_i_local);
-*/
+
     // liberar memoria matriz local
+    for (int i = 0; i < n; i++)
+    {
+        delete[] matriz_fr_local[i];
+        delete[] matriz_fi_local[i];
+        delete[] matriz_wr_local[i];
+    }
 
-
-    // Destructores
-    // leer.~Lectura(); <---- preguntar
+    delete[] matriz_fr_local;
+    delete[] matriz_fi_local;
+    delete[] matriz_wr_local;
 
     return 0;
 };
