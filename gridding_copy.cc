@@ -1,12 +1,27 @@
-#include "corrutina.cc"
 #include "tarea.cc"
 #include "tarea_local.cc"
 
+#include <ctime>
+
+/*
+Descripción: Programa que realiza el gridding de una imagen I(x, y) a su transformada V(u, v) con exclusión mutua y sin exclusión mutua, luego los resultados son escritos en archivos.
+Entrada: 
+    -i: Nombre del archivo de entrada.
+    -o: Nombre del archivo de salida.
+    -d: Delta de la imagen.
+    -N: Tamaño de la imagen.
+    -c: Tamaño del chunk de lectura.
+    -t: Número de tareas.
+Salida: No posee salida.
+*/
 int main(int argc, char *argv[])
 {
     string nombre_archivo_entrada, nombre_datos_grideados;
     double delta_x, delta_u, delta_v;
     int n, chunk_lectura, numero_tareas, opcion;
+
+    unsigned time_i, time_f;
+    double tp, time;
 
     while ((opcion = getopt(argc, argv, "i:o:d:N:c:t:")) != -1)
     {
@@ -36,6 +51,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Creación de matrices e inicializadas en 0 para acumular las matrices locales de cada tarea local
     double **matriz_fr_local = new double *[n];
     double **matriz_fi_local = new double *[n];
     double **matriz_wr_local = new double *[n];
@@ -52,14 +68,15 @@ int main(int argc, char *argv[])
             matriz_wr_local[i][j] = 0.0;
         }
     }
-
+    // Cálculo de delta_x.
     delta_x = (M_PI * delta_x) / (3600 * 180);
-    
+
     // Imagen I(x, y) es delta_x y delta_y, luego la distancia en los puntos de su transformada V(u, v) es:
     delta_u = 1 / (n * delta_x);
     delta_v = 1 / (n * delta_x);
-    
 
+    time_i = clock();
+    // Gidding con exclusión mutua
     Lectura leer(nombre_archivo_entrada, chunk_lectura);
     Matriz matrices(n);
     Tarea **tarea = new Tarea *[numero_tareas];
@@ -73,18 +90,26 @@ int main(int argc, char *argv[])
     // Eliminación de tareas
     for (int i = 0; i < numero_tareas; i++)
     {
-        //fprintf(stderr, "Eliminando tarea %d\n", i);
         delete tarea[i];
     }
     delete[] tarea;
 
     // Normalización matriz
     matrices.setNormalizarMatrices();
+    time_f = clock();
+    // Tiempo total de ejecucion en segundos
+    time = (double(time_f-time_i)/CLOCKS_PER_SEC);
+    tp = time + tp;
 
-    // Escribir en archivo las matrices
+    cout << "Tiempo de ejecucion con matriz global con exlcusión mutua: " << time << " segundos" << endl;
+
+    // Escribir en archivo el gridding resultante
     matrices.escribirArchivo("datosgrideadosr.raw", "datosgrideadosi.raw");
 
     ///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
+
+    time_i = clock();
+
     Lectura leer_local(nombre_archivo_entrada, chunk_lectura);
 
     Tarea_local **tarea_local = new Tarea_local *[numero_tareas];
@@ -135,6 +160,12 @@ int main(int argc, char *argv[])
             }
         }
     }
+    time_f = clock();
+    // Tiempo total de ejecucion en segundos
+    time = (double(time_f-time_i)/CLOCKS_PER_SEC);
+    tp = time + tp;
+
+    cout << "Tiempo de ejecucion con matriz local: " << time << " segundos" << endl;
 
     // escribir en archivo las matrices locales
     FILE *archivo_datos_grideados_r_local = fopen("datosgrideadosr_local.raw", "wb");

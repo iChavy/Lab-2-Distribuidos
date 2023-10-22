@@ -1,12 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <getopt.h>
-#include <sstream>
-#include <cmath>
-#include "matriz.cc"
+#include "tarea.h"
 
-#define VEL_LUZ 299792458
 
 // agregar condiciones de apertura de archivo, si archivo no existe, si archivo esta vacio, si archivo no tiene el formato correcto
 // agregar cond cuando el chunk es  maayor a las lineas por leer
@@ -15,11 +8,16 @@ _Task Tarea
 private:
     int id_tarea, n;
     double delta_x, delta_u, delta_v;
-
     vector<string> vector_lineas;
-
     Lectura *corrutina_leer;
-    Matriz *matrices_globales;    
+    Matriz *matrices_globales;
+
+    /*
+    Descripción: Mientras el vector no esté vacío, ingresa a la corrutina de lectura, y los chunks leídos los almacena en un vector.
+                 Luego, extrae los datos del vector con split y los guarda en otro vector. Después transforma las coordenadas u, v a longitud de onda, determina la posición de la matriz que corresponde la visibilidad y lo acumula en la matriz con exclusión mutua que es compartida. En el caso de que el vector esté vacío, significa que ya no hay más chunks por leer, por lo que las tareas terminan.
+    Entrada: No posee entrada
+    Salida: No posee salida
+    */
 
     void main()
     {
@@ -32,15 +30,16 @@ private:
         double u, v, visibilidad_real, visibilidad_im, peso_w, frec_obs, canal_espectral, u_k, v_k;
         int i_k, j_k, flag = 0;
 
+        // Si recibe un vector vacío, significa que ya no hay más chunks por leer, por lo que las tareas terminan.
         while (flag == 0)
         {
-            // Lee n chunks, guarda las lineas en un vector y lo retorna
+            // Lee n chunks, guarda las lineas en un vector, lo retorna y lo guarda en vector_lineas.
             vector_lineas = corrutina_leer->get_vector_lineas();
             if (vector_lineas.size() != 0)
             {
                 valores.clear();
 
-                // Extrae datos del vector con split y lo guarda en un vector double
+                // Extrae datos del vector con split y lo guarda en otro vector.
                 for (int i = 0; i < vector_lineas.size(); i++)
                 {
                     replace(vector_lineas[i].begin(), vector_lineas[i].end(), ',', ';');
@@ -62,7 +61,7 @@ private:
                 }
                 vector_lineas.clear();
 
-                // Calculo
+                // Cálculo de la visibilidad
                 for (int i = 0; i < valores.size(); i += 8)
                 {
                     u = valores[i];
@@ -76,7 +75,7 @@ private:
                     // Transformación de las coordenada u, v a longitud de onda
                     u_k = u * (frec_obs / VEL_LUZ);
                     v_k = v * (frec_obs / VEL_LUZ);
-                    //  Determina la posición de la matriz que corresponde la visibilidad (u_k, v_k)
+                    //  Determina la posición de la matriz que corresponde la visibilidad
                     i_k = round((u_k / delta_u) + n / 2);
                     j_k = round((v_k / delta_v) + n / 2);
 
@@ -95,12 +94,26 @@ private:
     }
 
 public:
-    Tarea(Lectura *corrutina, int id_tarea, Matriz *matrices, double delta_x, double delta_u, double delta_v, int n)
+    /*
+    Descripción: Constructor de la clase Tarea.
+    Entrada:    Lectura *corrutina: puntero a la corrutina de lectura
+                int id_tarea: id de la tarea
+                Matriz *matrices: puntero a la clase Matriz
+                double delta_x: distancia entre los pixeles de la imagen I(x, y)
+                double delta_u: distancia entre los puntos de la transformada V(u,v)
+                double delta_v: distancia entre los puntos de la transformada V(u,v)
+                int n: tamaño de la matriz
+    Salida: No posee salida
+    */
+    Tarea(Lectura * corrutina, int id_tarea, Matriz *matrices, double delta_x, double delta_u, double delta_v, int n)
         : id_tarea(id_tarea), n(n), delta_x(delta_x), delta_u(delta_u), delta_v(delta_v), corrutina_leer(corrutina), matrices_globales(matrices)
     {
     }
 
-
-    // Destructor
+    /*
+    Descripción: Destructor de la clase Tarea.
+    Entrada: No posee entrada
+    Salida: No posee salida
+    */
     ~Tarea(){};
 };
