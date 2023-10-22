@@ -1,20 +1,11 @@
 #include "matriz.h"
 
-_Mutex class Matriz
-{
-private:
-    double **matriz_fr;
-    double **matriz_fi;
-    double **matriz_wr;
-    int n;
-
-public:
     /*
     Descripción: Constructor de la clase Matriz. Se encarga de inicializar las matrices de visibilidad real, imaginaria y de pesos con ceros.
     Entrada: n, tamaño de la matriz.
     Salida: No posee retornos.
     */
-    Matriz(int n) : n(n)
+    Matriz::Matriz(int n) : n(n)
     {
         matriz_fr = new double *[n];
         matriz_fi = new double *[n];
@@ -43,7 +34,7 @@ public:
                 double visibilidad_real, parte real de la visibilidad.
     Salida: No posee retornos.
     */
-    void setMatriz_fr(int i, int j, double peso_w, double visibilidad_real)
+    void Matriz::setMatriz_fr(int i, int j, double peso_w, double visibilidad_real)
     {
         matriz_fr[i][j] += (peso_w * visibilidad_real);
     }
@@ -56,7 +47,7 @@ public:
                 double visibilidad_imaginaria, parte imaginaria de la visibilidad.
     Salida: No posee retornos.
     */
-    void setMatriz_fi(int i, int j, double peso_w, double visibilidad_imaginaria)
+    void Matriz::setMatriz_fi(int i, int j, double peso_w, double visibilidad_imaginaria)
     {
         matriz_fi[i][j] += (peso_w * visibilidad_imaginaria);
     }
@@ -68,7 +59,7 @@ public:
                 double valor, peso w que es el valor de confianza de la matriz.
     Salida: No posee retornos.
     */
-    void setMatriz_wr(int i, int j, double valor)
+    void Matriz::setMatriz_wr(int i, int j, double valor)
     {
         matriz_wr[i][j] += (valor);
     }
@@ -78,7 +69,7 @@ public:
     Entrada: No posee entradas.
     Salida: No posee retornos.
     */
-    void setNormalizarMatrices()
+    void Matriz::setNormalizarMatrices()
     {
         for (int i = 0; i < n; i++)
         {
@@ -105,7 +96,7 @@ public:
                 string gridding_imaginario, nombre del archivo de salida de la parte imaginaria.
     Salida: No posee retornos.
     */
-    void escribirArchivo(string gridding_real, string gridding_imaginario)
+    void Matriz::escribirArchivo(string gridding_real, string gridding_imaginario)
     {
         FILE *archivo_datos_grideados_r = fopen(gridding_real.c_str(), "wb");
         FILE *archivo_datos_grideados_i = fopen(gridding_imaginario.c_str(), "wb");
@@ -130,7 +121,7 @@ public:
     Entrada: No posee entradas.
     Salida: No posee retornos.
     */
-    ~Matriz()
+    Matriz::~Matriz()
     {
         for (int i = 0; i < n; i++)
         {
@@ -142,4 +133,3 @@ public:
         delete[] matriz_fi;
         delete[] matriz_wr;
     }
-};

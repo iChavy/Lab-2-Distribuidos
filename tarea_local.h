@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
+#include "corrutina.h"
 
 using namespace std;
 

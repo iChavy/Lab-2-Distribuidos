@@ -1,5 +1,7 @@
-#include "tarea.cc"
-#include "tarea_local.cc"
+#include "tarea.h"
+#include "tarea_local.h"
+#include "corrutina.h"
+#include "matriz.h"
 
 #include <ctime>
 
@@ -104,7 +106,7 @@ int main(int argc, char *argv[])
     cout << "Tiempo de ejecucion con matriz global con exlcusión mutua: " << time << " segundos" << endl;
 
     // Escribir en archivo el gridding resultante
-    matrices.escribirArchivo("datosgrideadosr.raw", "datosgrideadosi.raw");
+    matrices.escribirArchivo((nombre_datos_grideados + "r.raw").c_str(), (nombre_datos_grideados + "i.raw").c_str());
 
     ///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
 
@@ -165,13 +167,11 @@ int main(int argc, char *argv[])
     time = (double(time_f-time_i)/CLOCKS_PER_SEC);
     tp = time + tp;
 
-    cout << "Tiempo de ejecucion con matriz local: " << time << " segundos" << endl;
+    cout << "\n\nTiempo de ejecucion con matriz local: " << time << " segundos" << endl;
 
     // escribir en archivo las matrices locales
-    FILE *archivo_datos_grideados_r_local = fopen("datosgrideadosr_local.raw", "wb");
-    FILE *archivo_datos_grideados_i_local = fopen("datosgrideadosi_local.raw", "wb");
-
-    cout << "Escribiendo en archivo local..." << endl;
+    FILE *archivo_datos_grideados_r_local = fopen((nombre_datos_grideados + "r_local.raw").c_str(), "wb");
+    FILE *archivo_datos_grideados_i_local = fopen((nombre_datos_grideados + "i_local.raw").c_str(), "wb");
 
     for (int i = 0; i < n; i++)
     {
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             fwrite(&matriz_fi_local[i][j], sizeof(double), 1, archivo_datos_grideados_i_local);
         }
     }
-
+    cout << "Los archivos" << nombre_datos_grideados << "r_local.raw e " << nombre_datos_grideados << "i_local.raw fueron creados" << endl;
     fclose(archivo_datos_grideados_r_local);
     fclose(archivo_datos_grideados_i_local);
 

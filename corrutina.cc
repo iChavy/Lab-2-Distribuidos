@@ -1,20 +1,11 @@
 #include "corrutina.h"
 
-_Mutex _Coroutine Lectura
-{
-private:
-    ifstream archivo;
-    int chunk_lectura;
-    string nombre_archivo_entrada;
-    // Vector que almacena las lineas leídas
-    vector<string> vector_lineas;
-
     /*
     Descripción: Función que utilizan las tareas para leer el archivo de entrada mediante exclusión mutua, en esta se leen n chunks del archivo y se almacenan en un vector. Cuando se termina de leer el archivo, lo cierra.
     Entrada: No posee entrada.
     Salida: No posee retorno.
     */
-    void main()
+    void Lectura::main()
     {
         string linea;
         int lineas_Actuales = 0;
@@ -51,14 +42,14 @@ private:
         archivo.close();
     }
 
-public:
+
     /*
     Descripción: Constructor de la clase Lectura, además abre el archivo de entrada.
     Entrada: nombre_archivo_entrada: string que contiene el nombre del archivo de entrada a abrir.
              chunk_lectura: entero que indica la cantidad de lineas que se leen por vez.
     Salida: No posee retorno.
     */
-    Lectura(string nombre_archivo_entrada, int chunk_lectura) : archivo(nombre_archivo_entrada.c_str()), chunk_lectura(chunk_lectura), nombre_archivo_entrada(nombre_archivo_entrada)
+    Lectura::Lectura(string nombre_archivo_entrada, int chunk_lectura) : archivo(nombre_archivo_entrada.c_str()), chunk_lectura(chunk_lectura), nombre_archivo_entrada(nombre_archivo_entrada)
     {
         // comprobar si archivo abierto
     }
@@ -68,7 +59,7 @@ public:
     Entrada: No posee entrada.
     Salida: vector_lineas: vector tipo string que contiene las lineas leídas del archivo.
     */
-    vector<string> get_vector_lineas()
+    vector<string> Lectura::get_vector_lineas()
     {
         resume();
         return vector_lineas;
@@ -79,7 +70,6 @@ public:
     Entrada: No posee entrada.
     Salida: No posee retorno.
     */
-    ~Lectura()
+    Lectura::~Lectura()
     {
     }
-};
