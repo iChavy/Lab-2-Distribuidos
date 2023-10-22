@@ -6,7 +6,7 @@
 #include <ctime>
 
 /*
-Descripción: Programa que realiza el gridding de una imagen I(x, y) a su transformada V(u, v) con exclusión mutua y sin exclusión mutua, luego los resultados son escritos en archivos.
+Descripción: Programa que realiza el gridding de una imagen I(x, y) a su transformada V(u, v) con matriz compartida y con matriz local luego los resultados son escritos en archivos.
 Entrada: 
     -i: Nombre del archivo de entrada.
     -o: Nombre del archivo de salida.
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Creación de matrices e inicializadas en 0 para acumular las matrices locales de cada tarea local
+    // Creación de matrices e inicializadas en 0 para acumular las matrices locales de cada tarea_local
     double **matriz_fr_local = new double *[n];
     double **matriz_fi_local = new double *[n];
     double **matriz_wr_local = new double *[n];
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     delta_v = 1 / (n * delta_x);
 
     time_i = clock();
-    // Gidding con exclusión mutua
+    // Gidding con matrices compartidas
     Lectura leer(nombre_archivo_entrada, chunk_lectura);
     Matriz matrices(n);
     Tarea **tarea = new Tarea *[numero_tareas];
@@ -103,12 +103,12 @@ int main(int argc, char *argv[])
     time = (double(time_f-time_i)/CLOCKS_PER_SEC);
     tp = time + tp;
 
-    cout << "Tiempo de ejecucion con matriz global con exlcusión mutua: " << time << " segundos" << endl;
+    cout << "\nTiempo de ejecucion con matriz compartida es " << time << " segundos" << endl;
 
     // Escribir en archivo el gridding resultante
     matrices.escribirArchivo((nombre_datos_grideados + "r.raw").c_str(), (nombre_datos_grideados + "i.raw").c_str());
 
-    ///////////////////////////////////////////////////////////////////////////// pt 2 /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////// Matriz compartida ///////////////////////////////
 
     time_i = clock();
 
@@ -139,7 +139,6 @@ int main(int argc, char *argv[])
     // eliminacion tareas
     for (int i = 0; i < numero_tareas; i++)
     {
-        // fprintf(stderr, "Eliminando tarea %d\n", i);
         delete tarea_local[i];
     }
 
@@ -167,7 +166,7 @@ int main(int argc, char *argv[])
     time = (double(time_f-time_i)/CLOCKS_PER_SEC);
     tp = time + tp;
 
-    cout << "\n\nTiempo de ejecucion con matriz local: " << time << " segundos" << endl;
+    cout << "\nTiempo de ejecucion con matriz local: " << time << " segundos" << endl;
 
     // escribir en archivo las matrices locales
     FILE *archivo_datos_grideados_r_local = fopen((nombre_datos_grideados + "r_local.raw").c_str(), "wb");
